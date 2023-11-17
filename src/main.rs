@@ -2,8 +2,8 @@ use rtshark;
 
 fn main() {
     let builder = rtshark::RTSharkBuilder::builder()
-        .input_path("wlp4s0")
-        // .input_path("enp3s0")
+        .input_path("wlp4s0") // Wi-Fi
+        // .input_path("enp3s0") // Ethernet
         .live_capture();
 
     // Start a new tshark process
