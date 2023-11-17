@@ -1,22 +1,27 @@
-static INFO: &str = "- [INFO]: ";
-
-
-fn receiver() {
-    log_console("Hello there I can receive something.");
-}
-
-fn sender() {
-    log_console("Hello there I can send something.");
-}
-
-
-fn log_console(data: &str) {
-    println!("{}{}", INFO, data);
-}
+use rtshark;
 
 fn main() {
-    receiver();
-    sender();
+    let builder = rtshark::RTSharkBuilder::builder()
+        .input_path("wlp4s0")
+        // .input_path("enp3s0")
+        .live_capture();
 
-    log_console("Finished executing program.");
+    // Start a new tshark process
+    let mut rtshark = builder
+        .spawn()
+        .unwrap_or_else(|e| panic!("Error starting tshark: {e}"));
+
+    // read packets until the end of the PCAP file
+    while let Some(packet) = rtshark.read().unwrap_or_else(|e| {
+        eprintln!("Error parsing tshark output: {e}");
+        None
+    }) {
+        for layer in packet {
+            println!("Layer: {}", layer.name());
+            for metadata in layer {
+                println!("\t{}", metadata.display());
+            }
+        }
+        println!("\n---------------------------\n");
+    }
 }
